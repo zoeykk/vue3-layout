@@ -1,8 +1,8 @@
 <template>
     <BaseLayout :navs="navs" :currentNavKey="currentNavKey">
         <div class="cube-menu-layout">
-            <div class="cube-menu-layout__menu" :style="{ width: menuVisible ? '200px' : '64px' }">
-                <div class="menu-fix">
+            <div class="cube-menu-layout__menu" :style="{ width: inlineCollapsed ? '64px' : '200px' }">
+                <div class="menu-fix" :style="{ 'width': inlineCollapsed ? '64px' : '200px' }">
                     <div class="menu-collapse" @click="onMenuCollapse">
                         <svg width="16px" height="16px" viewBox="0 0 16 16">
                             <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
@@ -17,10 +17,11 @@
                                 </g>
                             </g>
                         </svg>
-                        <span v-show="menuVisible"> 收起导航</span>
+                        <span v-show="!inlineCollapsed">收起导航</span>
                     </div>
-                    <CubeMenu v-show="menuVisible">
-                        <CubeMenuItem v-for="item in menus" :key="item.key" :item="item" @menuClick="onMenuClick(item)">
+                    <CubeMenu>
+                        <CubeMenuItem v-for="item in menus" :key="item.key" :item="item"
+                            :inlineCollapsed="inlineCollapsed" @menuClick="onMenuClick(item)">
                             <template #icon>
                                 <svg width="16px" height="16px" viewBox="0 0 16 16">
                                     <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
@@ -69,16 +70,16 @@ export default {
         CubeMenuItem,
     },
     setup(props, { emit }) {
-        const menuVisible = ref(true)
+        const inlineCollapsed = ref(false)
 
         function onMenuCollapse() {
-            menuVisible.value = !menuVisible.value
+            inlineCollapsed.value = !inlineCollapsed.value
         }
         function onMenuClick(item) {
             emit('menuClick', item)
         }
 
-        return { menuVisible, onMenuClick, onMenuCollapse }
+        return { inlineCollapsed, onMenuClick, onMenuCollapse }
     }
 }
 </script>
@@ -96,7 +97,6 @@ export default {
         min-height: calc(100vh - 64px);
 
         .menu-fix {
-            width: 200px;
             min-height: calc(100vh - 64px);
             position: fixed;
             top: 64px;

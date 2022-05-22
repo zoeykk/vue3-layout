@@ -57,7 +57,6 @@ export default {
 
 <style lang="less" scoped>
 .content {
-
     .breadcrumb {
         margin: 16px 0 20px 0;
         height: 22px;

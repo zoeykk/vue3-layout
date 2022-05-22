@@ -24,6 +24,12 @@ const routes = [
     name: "updown",
     component: () => import(/* webpackChunkName: "about" */ "../views/upDown"),
   },
+  {
+    path: "/side-anchor",
+    name: "side-anchor",
+    component: () =>
+      import(/* webpackChunkName: "side-anchor" */ "../views/sideAnchor"),
+  },
 ];
 
 const router = createRouter({

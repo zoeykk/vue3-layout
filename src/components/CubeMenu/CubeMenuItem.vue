@@ -1,11 +1,20 @@
 <template>
     <div class="collapse-wrap">
-        <div :class="['header', { 'menu-item--active': isMenuActive }]" @click="onMenuClick">
+        <div :class="['submenu-title', {
+            'menu-item--active': isMenuActive,
+            'submenu-title--collapsed': inlineCollapsed && hasChildren,
+            'submenu-title--collapsed-self': inlineCollapsed && !hasChildren
+        }]" @click="onMenuClick">
             <div class="icon">
                 <slot name="icon"> </slot>
+                <ul class="hover-sub-menu">
+                    <li :class="[{ 'menu-item--active': citem.key === selectedKey }]" v-for="citem in item.children"
+                        :key="citem.key" @click="onMenuItemClick(citem)">{{ citem.name }}</li>
+                </ul>
+                <div class="hover-menu">{{ item.name }}</div>
             </div>
-            <div class="text">{{ item.name }}</div>
-            <div v-show="hasMenuItem" class="arrow">
+            <div v-show="!inlineCollapsed" class="text">{{ item.name }}</div>
+            <div v-show="!inlineCollapsed && hasChildren" class="arrow">
                 <svg width="14px" height="14px" viewBox="0 0 14 14">
                     <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
                         <g transform="translate(-376.000000, -25.000000)">
@@ -24,7 +33,7 @@
             </div>
         </div>
         <HeightTransition>
-            <ul v-show="hasMenuItem && visible" class="body">
+            <ul v-show="!inlineCollapsed && hasChildren && visible" class="body">
                 <li :class="[{ 'menu-item--active': citem.key === selectedKey }]" v-for="citem in item.children"
                     :key="citem.key" @click="onMenuItemClick(citem)">{{ citem.name }}</li>
             </ul>
@@ -33,6 +42,7 @@
 </template>
 
 <script>
+import { CLIENT_RENEG_LIMIT } from 'tls';
 import { inject, ref, computed, toRefs } from 'vue'
 import HeightTransition from './HeightTransition.vue'
 export default {
@@ -43,31 +53,36 @@ export default {
         item: {
             type: Object,
         },
+        inlineCollapsed: {
+            type: Boolean,
+        },
     },
     setup(props, { emit }) {
         const visible = ref(false)
         const selectedKey = inject('selectedKey')
         const changeSelectedKey = inject('changeSelectedKey')
         const { item } = toRefs(props)
-        const hasMenuItem = computed(() => {
+        const hasChildren = computed(() => {
             return Boolean(item.value.children && item.value.children.length > 0)
         })
         const isMenuActive = computed(() => {
             return selectedKey.value === item.value.key
         })
         function onMenuClick() {
-            if (hasMenuItem.value) {
-                visible.value = !visible.value
-            } else {
-                emit('menuClick')
-                changeSelectedKey(item.value.key)
+            if (!props.inlineCollapsed) {
+                if (hasChildren.value) {
+                    visible.value = !visible.value
+                } else {
+                    emit('menuClick')
+                    changeSelectedKey(item.value.key)
+                }
             }
         }
         function onMenuItemClick(citem) {
             emit('menuClick')
             changeSelectedKey(citem.key)
         }
-        return { selectedKey, isMenuActive, visible, hasMenuItem, onMenuClick, onMenuItemClick }
+        return { selectedKey, isMenuActive, visible, hasChildren, onMenuClick, onMenuItemClick }
     }
 };
 </script>
@@ -80,13 +95,59 @@ export default {
 }
 
 .collapse-wrap {
-    .header {
+    .hover-sub-menu {
+        display: none;
+        width: 160px;
+        position: absolute;
+        top: 0;
+        left: 64px;
+        font-size: 14px;
+        font-weight: 400;
+        overflow-x: hidden;
+        overflow-y: auto;
+        background-color: #fff;
+        border-radius: 4px;
+        transition: background-color .3s cubic-bezier(.645, .045, .355, 1), padding .3s cubic-bezier(.645, .045, .355, 1);
+        box-shadow: 0 3px 6px -4px #0000001f, 0 6px 16px #00000014, 0 9px 28px 8px #0000000d;
+
+        li {
+            padding-left: 44px;
+            height: 40px;
+            line-height: 40px;
+            cursor: pointer;
+
+            &:hover {
+                background-color: rgba(27, 188, 155, 0.04);
+            }
+        }
+    }
+
+    .hover-menu {
+        display: none;
+        width: 160px;
+        position: absolute;
+        top: 0;
+        left: 64px;
+        font-size: 14px;
+        font-weight: 400;
+        overflow-x: hidden;
+        overflow-y: auto;
+        padding: 8px 12px;
+        background-color: #fff;
+        border-radius: 4px;
+        transition: background-color .3s cubic-bezier(.645, .045, .355, 1), padding .3s cubic-bezier(.645, .045, .355, 1);
+        box-shadow: 0 3px 6px -4px #0000001f, 0 6px 16px #00000014, 0 9px 28px 8px #0000000d;
+        cursor: unset;
+        color: #666;
+    }
+
+    .submenu-title {
         height: 40px;
         display: flex;
         align-items: center;
         padding: 0 18px 0 16px;
         font-size: 14px;
-        cursor: pointer;
+        position: relative;
 
         .icon {
             width: 16px;
@@ -105,6 +166,56 @@ export default {
 
         &:hover {
             background-color: rgba(27, 188, 155, 0.04);
+        }
+    }
+
+    .submenu-title--collapsed {
+        height: 40px;
+        display: flex;
+        align-items: center;
+        padding: 0 18px 0 16px;
+        font-size: 14px;
+        cursor: pointer;
+        position: relative;
+
+        &:hover {
+            .hover-sub-menu {
+                display: block;
+            }
+        }
+
+        .icon {
+            width: 16px;
+            margin-top: 3px;
+        }
+
+        .text {
+            flex: 1;
+            margin-left: 12px;
+            line-height: 22px;
+        }
+
+        .arrow {
+            color: #333;
+        }
+
+        &:hover {
+            background-color: rgba(27, 188, 155, 0.04);
+        }
+    }
+
+    .submenu-title--collapsed-self {
+        height: 40px;
+        display: flex;
+        align-items: center;
+        padding: 0 18px 0 16px;
+        font-size: 14px;
+        position: relative;
+
+        &:hover {
+            .hover-menu {
+                display: block;
+            }
         }
     }
 
