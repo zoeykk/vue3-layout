@@ -30,6 +30,12 @@ const routes = [
     component: () =>
       import(/* webpackChunkName: "side-anchor" */ "../views/sideAnchor"),
   },
+  {
+    path: "/up-anchor",
+    name: "up-anchor",
+    component: () =>
+      import(/* webpackChunkName: "side-anchor" */ "../views/upAnchor"),
+  },
 ];
 
 const router = createRouter({
