@@ -1,29 +1,18 @@
 <template>
   <BaseLayout :navs="navs" :currentNavKey="currentNavKey">
-    <div class="content">
-      <div class="up">
-        <div class="up-inner">
-          <ul class="cube-anchor">
-            <li
-              v-for="item in anchors"
-              :key="item.href"
-              class="anchor-item"
-              :style="{
-                color:
-                  item.href === hoverAnchor || item.href === activeAnchor
-                    ? themeColor
-                    : '#333',
-              }"
-              @click="onAnchorClick(item)"
-              @mouseover="onAnchorOver(item)"
-              @mouseleave="onAnchorLeave(item)"
-            >
-              {{ item.title }}
-            </li>
-          </ul>
-        </div>
+    <div class="upanchor-layout">
+      <div class="anchor-wrap">
+        <ul class="anchor">
+          <li v-for="item in anchors" :key="item.href" class="anchor-item" :style="{
+            color: [hoverAnchor, activeAnchor].includes(item.href)
+              ? themeColor
+              : '#333',
+          }" @click="onAnchorClick(item)" @mouseover="onAnchorMouseOver(item)" @mouseleave="onAnchorMouseLeave(item)">
+            {{ item.title }}
+          </li>
+        </ul>
       </div>
-      <div class="down" ref="pageContentRef">
+      <div ref="blockParentRef">
         <slot></slot>
       </div>
     </div>
@@ -53,83 +42,96 @@ export default {
       type: String,
       default: "#1BBC9B",
     },
+    initTop: {
+      type: Number,
+      default: 144
+    }
   },
   setup(props) {
-    const hrefTop = {};
-    const pageContentRef = ref(null);
+    const blockParentRef = ref(null);
     const activeAnchor = ref("");
     const hoverAnchor = ref("");
+    const isScrollLock = ref(false)
     onMounted(() => {
+      init()
+    });
+    watch(useScroll(), (windowScrollTop) => {
+      if (isScrollLock.value) return
+      setActiveAnchorByScroll(windowScrollTop)
+    });
+    function init() {
       if (props.anchors && props.anchors[0] && props.anchors[0].href) {
         activeAnchor.value = props.anchors[0].href;
       }
-      const containerNode = pageContentRef.value;
-      const length = containerNode.children.length;
-      const INIT_OFFSETTOP = 144; // 对应滚动 scrollTop = 0
-      for (let i = 0; i < length; i++) {
-        hrefTop[containerNode.children[i].id] =
-          containerNode.children[i].offsetTop - INIT_OFFSETTOP;
+      scrollTo(0)
+    }
+    function getBlocksOffsetTop() {
+      const blockOffsetTopMap = {};
+      const containerNodes = blockParentRef.value.children;
+      const nodes = Array.from(containerNodes).reverse()
+      for (let i = 0; i < nodes.length; i++) {
+        blockOffsetTopMap[nodes[i].id] =
+          nodes[i].offsetTop - props.initTop;
       }
-      console.log(hrefTop);
-    });
-    // debounce toggle anchor state when scrolling
-    let timeoutId = null;
-    watch(useScroll(), (val) => {
-      // for (let href in hrefTop) {
-      //   console.log(val, hrefTop[href]);
-      //   if (val >= hrefTop[href]) {
-      //     activeAnchor.value = href;
-      //   }
-      // }
-      // for (let href in hrefTop) {
-      //   if (timeoutId) {
-      //     clearTimeout(timeoutId);
-      //   }
-      //   timeoutId = setTimeout(() => {
-      //     console.log(val, hrefTop[href]);
-      //     if (val >= hrefTop[href]) {
-      //       activeAnchor.value = href;
-      //     }
-      //   }, 200);
-      // }
-    });
-    function onAnchorClick(item) {
-      activeAnchor.value = item.href;
+      return blockOffsetTopMap
+    }
+    function setActiveAnchorByScroll(windowScrollTop) {
+      const blockOffsetTopMap = getBlocksOffsetTop()
+      for (let key in blockOffsetTopMap) {
+        if (windowScrollTop >= blockOffsetTopMap[key]) {
+          activeAnchor.value = key;
+          break
+        }
+      }
+    }
+    function scrollTo(offsetTop) {
       window.scrollTo({
-        top: hrefTop[item.href],
+        top: offsetTop,
         behavior: "smooth",
       });
     }
-    function onAnchorOver(item) {
+    function onAnchorClick(item) {
+      isScrollLock.value = true
+      activeAnchor.value = item.href;
+      const blockOffsetTopMap = getBlocksOffsetTop()
+      scrollTo(blockOffsetTopMap[item.href])
+      setTimeout(() => {
+        isScrollLock.value = false
+      }, 800);
+    }
+    function onAnchorMouseOver(item) {
       hoverAnchor.value = item.href;
     }
-    function onAnchorLeave(item) {
+    function onAnchorMouseLeave() {
       hoverAnchor.value = "";
     }
     return {
-      pageContentRef,
+      isScrollLock,
+      blockParentRef,
       activeAnchor,
       hoverAnchor,
       onAnchorClick,
-      onAnchorOver,
-      onAnchorLeave,
+      onAnchorMouseOver,
+      onAnchorMouseLeave,
     };
   },
 };
 </script>
 
 <style lang="less" scoped>
-.content {
+.upanchor-layout {
   padding: 24px;
   padding-top: 80px;
-  .up {
+
+  .anchor-wrap {
     position: fixed;
     top: 64px;
     left: 24px;
     right: 24px;
     padding-top: 24px;
-    background-color: #fff;
-    .cube-anchor {
+    background-color: #fafafa;
+
+    .anchor {
       background-color: antiquewhite;
       border-radius: 4px;
       padding: 16px;
@@ -147,8 +149,6 @@ export default {
         display: inline-block;
       }
     }
-  }
-  .down {
   }
 }
 </style>

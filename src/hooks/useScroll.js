@@ -1,10 +1,10 @@
 import { ref, onMounted, onBeforeMount } from "vue";
-export default function () {
+export default function (wait = 0) {
   let previde = 0;
   const scrollTop = ref(0);
   const onScrollFunc = () => {
     let nowDate = Date.now();
-    if (nowDate - previde > 160) {
+    if (nowDate - previde >= wait) {
       scrollTop.value =
         document.documentElement.scrollTop || document.body.scrollTop;
       previde = nowDate;

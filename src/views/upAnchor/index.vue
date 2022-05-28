@@ -1,11 +1,5 @@
 <template>
-  <UpAnchorLayout
-    :navs="navs"
-    currentNavKey="2"
-    :anchors="anchors"
-    themeColor="#52C41A"
-    anchorWidth="320px"
-  >
+  <UpAnchorLayout :navs="navs" currentNavKey="2" :anchors="anchors" themeColor="#1BBC9B" anchorWidth="320px">
     <div id="href1" class="left-item1">1</div>
     <div id="href2" class="left-item2">2</div>
     <div id="href3" class="left-item3">3</div>
@@ -90,14 +84,14 @@ export default {
 
 <style lang="less" scoped>
 .left-item1 {
-  height: 400px;
+  height: 2000px;
   background-color: #ffffff;
   border-radius: 4px;
   margin-bottom: 24px;
 }
 
 .left-item2 {
-  height: 600px;
+  height: 2000px;
   background-color: #ffffff;
   border-radius: 4px;
   margin-bottom: 24px;

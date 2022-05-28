@@ -1,21 +1,21 @@
 <template>
     <BaseLayout :navs="navs" :currentNavKey="currentNavKey">
-        <div class="content">
-            <div class="left" ref="pageContentRef">
+        <div class="sideanchor-layout">
+            <div class="left" ref="blockParentRef">
                 <slot></slot>
             </div>
             <div class="right" :style="{ width: anchorWidth }">
                 <div class="right-inner" :style="{ width: anchorWidth }">
-                    <ul class="cube-anchor">
+                    <ul class="anchor">
                         <li v-for="item in anchors" :key="item.href" class="anchor-item"
                             :style="{ color: item.href === hoverAnchor || item.href === activeAnchor ? themeColor : '#333' }"
-                            @click="onAnchorClick(item)" @mouseover="onAnchorOver(item)"
-                            @mouseleave="onAnchorLeave(item)">
+                            @click="onAnchorClick(item)" @mouseover="onAnchorMouseOver(item)"
+                            @mouseleave="onAnchorMouseLeave(item)">
                             <span class="circle"
                                 :style="{ color: item.href === activeAnchor ? themeColor : '#ddd' }"></span>
                             {{ item.title }}
                         </li>
-                        <div class="line"></div>
+                        <div class="circle-line"></div>
                     </ul>
                 </div>
             </div>
@@ -49,57 +49,85 @@ export default {
         anchorWidth: {
             type: String,
             default: '160px'
+        },
+        initTop: {
+            type: Number,
+            default: 88
         }
     },
     setup(props) {
-        const hrefTop = {}
-        const pageContentRef = ref(null)
-        const activeAnchor = ref('')
-        const hoverAnchor = ref('')
+        const blockParentRef = ref(null);
+        const activeAnchor = ref("");
+        const hoverAnchor = ref("");
+        const isScrollLock = ref(false)
         onMounted(() => {
+            init()
+        });
+        watch(useScroll(), (windowScrollTop) => {
+            if (isScrollLock.value) return
+            setActiveAnchorByScroll(windowScrollTop)
+        });
+        function init() {
             if (props.anchors && props.anchors[0] && props.anchors[0].href) {
-                activeAnchor.value = props.anchors[0].href
+                activeAnchor.value = props.anchors[0].href;
             }
-            const containerNode = pageContentRef.value
-            const length = containerNode.children.length
-            const INIT_OFFSETTOP = 88 // 对应滚动 scrollTop = 0
-            for (let i = 0; i < length; i++) {
-                hrefTop[containerNode.children[i].id] = containerNode.children[i].offsetTop - INIT_OFFSETTOP
+            scrollTo(0)
+        }
+        function getBlocksOffsetTop() {
+            const blockOffsetTopMap = {};
+            const containerNodes = blockParentRef.value.children;
+            const nodes = Array.from(containerNodes).reverse()
+            for (let i = 0; i < nodes.length; i++) {
+                blockOffsetTopMap[nodes[i].id] =
+                    nodes[i].offsetTop - props.initTop;
             }
-        })
-        // debounce toggle anchor state when scrolling
-        let timeoutId = null;
-        watch(useScroll(), (val) => {
-            for (let href in hrefTop) {
-                if (timeoutId) {
-                    clearTimeout(timeoutId);
+            return blockOffsetTopMap
+        }
+        function setActiveAnchorByScroll(windowScrollTop) {
+            const blockOffsetTopMap = getBlocksOffsetTop()
+            for (let key in blockOffsetTopMap) {
+                if (windowScrollTop >= blockOffsetTopMap[key]) {
+                    activeAnchor.value = key;
+                    break
                 }
-                timeoutId = setTimeout(() => {
-                    if (val >= hrefTop[href]) {
-                        activeAnchor.value = href
-                    }
-                }, 200);
             }
-        })
-        function onAnchorClick(item) {
-            activeAnchor.value = item.href
+        }
+        function scrollTo(offsetTop) {
             window.scrollTo({
-                top: hrefTop[item.href], behavior: "smooth"
-            })
+                top: offsetTop,
+                behavior: "smooth",
+            });
         }
-        function onAnchorOver(item) {
-            hoverAnchor.value = item.href
+        function onAnchorClick(item) {
+            isScrollLock.value = true
+            activeAnchor.value = item.href;
+            const blockOffsetTopMap = getBlocksOffsetTop()
+            scrollTo(blockOffsetTopMap[item.href])
+            setTimeout(() => {
+                isScrollLock.value = false
+            }, 800);
         }
-        function onAnchorLeave(item) {
-            hoverAnchor.value = ''
+        function onAnchorMouseOver(item) {
+            hoverAnchor.value = item.href;
         }
-        return { pageContentRef, activeAnchor, hoverAnchor, onAnchorClick, onAnchorOver, onAnchorLeave }
+        function onAnchorMouseLeave() {
+            hoverAnchor.value = "";
+        }
+        return {
+            isScrollLock,
+            blockParentRef,
+            activeAnchor,
+            hoverAnchor,
+            onAnchorClick,
+            onAnchorMouseOver,
+            onAnchorMouseLeave,
+        };
     }
 }
 </script>
 
 <style lang="less" scoped>
-.content {
+.sideanchor-layout {
     display: flex;
     align-items: flex-start;
     padding: 24px;
@@ -118,7 +146,7 @@ export default {
             width: 160px;
         }
 
-        .cube-anchor {
+        .anchor {
             background-color: #FFF;
             border-radius: 4px;
             padding: 16px;
@@ -151,7 +179,7 @@ export default {
 
             }
 
-            .line {
+            .circle-line {
                 position: absolute;
                 top: 16px;
                 bottom: 16px;
