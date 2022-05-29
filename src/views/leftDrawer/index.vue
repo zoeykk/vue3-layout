@@ -1,5 +1,5 @@
 <template>
-    <DrawerLayout :navs="navs" currentNavKey="2" :menus="menus" @menuClick="onMenuClick">
+    <DrawerLayout :navs="navs" currentNavKey="0-1" :menus="menus" @menuClick="onMenuClick">
         <template #drawer>
             <ul class="custome-drawer">
                 <li>医药魔方</li>
@@ -16,6 +16,7 @@
 <script>
 import { reactive, toRefs } from 'vue'
 import DrawerLayout from '@/components/DrawerLayout'
+import { NAVS } from '../../config'
 export default {
     components: {
         DrawerLayout,
@@ -23,27 +24,7 @@ export default {
     setup() {
         const data = reactive(
             {
-                navs: [{
-                    name: "未选中项1",
-                    key: '1',
-                    children: [{
-                        name: '选项一',
-                        key: '10',
-                        url: "https://www.baidu.com/"
-                    }, {
-                        name: '选项二',
-                        key: '11',
-                        url: "https://www.baidu.com/"
-                    }, {
-                        name: '选项三',
-                        key: '12',
-                        url: "https://www.baidu.com/"
-                    }]
-                }, {
-                    name: "已选中项",
-                    key: '3',
-                    url: "https://www.baidu.com/",
-                }],
+                navs: NAVS,
                 menus: [{
                     name: "未选中项1",
                     key: '1',

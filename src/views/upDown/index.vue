@@ -1,73 +1,45 @@
 <template>
-    <UpDownLayout :navs="navs" currentNavKey="2">
-        <div class="content">
+    <BaseLayout :navs="navs" currentNavKey="1-1">
+        <div class="cube-updown-layout">
             <div class="breadcrumb">
                 一级项/二级项/选中项
             </div>
-            <div class="content-body">固定宽度1200px</div>
+            <div class="content">固定宽度1200px</div>
         </div>
-    </UpDownLayout>
+    </BaseLayout>
 </template>
 
 <script>
-import { reactive, computed } from 'vue'
-import UpDownLayout from '@/components/UpDownLayout'
+import { reactive, toRefs } from 'vue'
+import BaseLayout from '@/components/BaseLayout'
+import { NAVS } from '../../config'
 export default {
     components: {
-        UpDownLayout,
+        BaseLayout,
     },
     setup() {
-        const navs = reactive([{
-            name: "未选中项1",
-            key: '1',
-            children: [{
-                name: '选项一',
-                key: '10',
-                url: "https://www.baidu.com/"
-            }, {
-                name: '选项二',
-                key: '11',
-                url: "https://www.baidu.com/"
-            }, {
-                name: '选项三',
-                key: '12',
-                url: "https://www.baidu.com/"
-            }]
-        }, {
-            name: "未选中项2",
-            key: '2',
-            children: [{
-                name: '选项一',
-                key: '20',
-                url: "https://www.baidu.com/"
-            }, {
-                name: '选项二',
-                key: '21',
-                url: "https://www.baidu.com/"
-            }]
-        }, {
-            name: "已选中项",
-            key: '3',
-            url: "https://www.baidu.com/",
-        }])
-        return { navs }
+        const data = reactive({ navs: NAVS })
+        return { ...toRefs(data) }
     }
 }
 </script>
 
 <style lang="less" scoped>
-.content {
+.cube-updown-layout {
+    padding: 0 24px 0 24px;
+    width: 1200px;
+    margin: 0 auto;
+
     .breadcrumb {
-        margin: 16px 0 20px 0;
-        height: 22px;
+        padding: 16px 0 20px 0;
         font-size: 14px;
         color: #999;
         line-height: 22px;
     }
 
-    .content-body {
+    .content {
         background-color: #fff;
-        min-height: calc(100vh - 300px);
+        min-height: calc(100vh - 140px);
         display: flex;
         align-items: center;
         justify-content: center;

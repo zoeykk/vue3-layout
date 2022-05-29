@@ -7,10 +7,13 @@
                 </div>
                 <ul class="cube-nav__menu">
                     <li v-for="item in navs" :key="item.key">
-                        <span :style="{ color: currentNavKey === item.key ? '#fff' : '' }">
+                        <!-- 展示菜单 -->
+                        <span
+                            :style="{ color: item.children.map(citem => citem.key).includes(currentNavKey) ? '#fff' : '' }">
                             <span v-if="item.children && item.children.length">{{ item.name }}</span>
                             <a v-else :href="item.url">{{ item.name }}</a>
                         </span>
+                        <!-- 下拉子菜单 -->
                         <span v-if="item.children && item.children.length" class="icon">
                             <svg width="14px" height="14px" viewBox="0 0 14 14">
                                 <g stroke="none" stroke-width="1" fill="none">
@@ -28,9 +31,11 @@
                                 </g>
                             </svg>
                         </span>
-                        <ul v-if="item.children && item.children.length" class="hover-menu">
+                        <ul v-if="item.children && item.children.length" class="sub-menus">
                             <li v-for="(citem, cindex) in item.children" :key="cindex">
-                                <a :href="citem.url">{{ citem.name }}</a>
+                                <a :href="citem.url" :class="{ 'sub-menu--active': citem.key === currentNavKey }">
+                                    {{ citem.name }}
+                                </a>
                             </li>
                         </ul>
                     </li>
@@ -114,7 +119,7 @@ export default {
                         margin-left: 2px;
                     }
 
-                    .hover-menu {
+                    .sub-menus {
                         position: absolute;
                         top: 64px;
                         left: -8px;
@@ -146,10 +151,14 @@ export default {
                                 }
                             }
                         }
+
+                        .sub-menu--active {
+                            color: #1BBC9B;
+                        }
                     }
 
                     &:hover {
-                        .hover-menu {
+                        .sub-menus {
                             visibility: visible;
                             opacity: 1;
                         }

@@ -1,5 +1,5 @@
 <template>
-    <MenuLayout :navs="navs" currentNavKey="2" :menus="menus" @menuClick="onMenuClick">
+    <MenuLayout :navs="navs" currentNavKey="0-0" :menus="menus" @menuClick="onMenuClick">
         <div class="content">
             <div class="content__title">医药魔方</div>
             <div class="content__body">医药魔方是一个医药行业一站式大数据服务平台，公司专注于为医药企业和投资机构提供专业数据、媒体资讯和咨询服务，致力于数据赋能医药创新，助力客户更加成功。</div>
@@ -10,6 +10,7 @@
 <script>
 import { reactive, toRefs } from 'vue'
 import MenuLayout from '@/components/MenuLayout'
+import { NAVS } from '../../config'
 export default {
     components: {
         MenuLayout,
@@ -17,41 +18,17 @@ export default {
     setup() {
         const data = reactive(
             {
-                navs: [{
-                    name: "未选中项1",
-                    key: '1',
-                    children: [{
-                        name: '选项一',
-                        key: '10',
-                        url: "https://www.baidu.com/"
-                    }, {
-                        name: '选项二',
-                        key: '11',
-                        url: "https://www.baidu.com/"
-                    }, {
-                        name: '选项三',
-                        key: '12',
-                        url: "https://www.baidu.com/"
-                    }]
-                }, {
-                    name: "已选中项",
-                    key: '3',
-                    url: "https://www.baidu.com/",
-                }],
+                navs: NAVS,
                 menus: [{
-                    name: "未选中项1",
+                    name: "锚点布局",
                     key: '1',
                     children: [{
-                        name: '选项一',
+                        name: '左右',
                         key: '10',
                         url: "https://www.baidu.com/"
                     }, {
-                        name: '选项二',
+                        name: '上下',
                         key: '11',
-                        url: "https://www.baidu.com/"
-                    }, {
-                        name: '选项三',
-                        key: '12',
                         url: "https://www.baidu.com/"
                     }]
                 }, {
