@@ -21,8 +21,13 @@ export const NAVS = [
     children: [
       {
         name: "自适应",
-        key: "1-1",
+        key: "1-0",
         url: "/updown",
+      },
+      {
+        name: "固定宽度",
+        key: "1-1",
+        url: "/updown-fix",
       },
     ],
   },

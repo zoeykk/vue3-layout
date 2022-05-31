@@ -25,6 +25,12 @@ const routes = [
     component: () => import(/* webpackChunkName: "about" */ "../views/upDown"),
   },
   {
+    path: "/updown-fix",
+    name: "updown-fix",
+    component: () =>
+      import(/* webpackChunkName: "about" */ "../views/upDownFix"),
+  },
+  {
     path: "/side-anchor",
     name: "side-anchor",
     component: () =>

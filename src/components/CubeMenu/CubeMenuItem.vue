@@ -1,238 +1,264 @@
 <template>
-    <div class="collapse-wrap">
-        <div :class="['submenu-title', {
-            'menu-item--active': isMenuActive,
-            'submenu-title--collapsed': inlineCollapsed && hasChildren,
-            'submenu-title--collapsed-self': inlineCollapsed && !hasChildren
-        }]" @click="onMenuClick">
-            <div class="icon">
-                <slot name="icon"> </slot>
-                <ul class="hover-sub-menu">
-                    <li :class="[{ 'menu-item--active': citem.key === selectedKey }]" v-for="citem in item.children"
-                        :key="citem.key" @click="onMenuItemClick(citem)">{{ citem.name }}</li>
-                </ul>
-                <div class="hover-menu">{{ item.name }}</div>
-            </div>
-            <div v-show="!inlineCollapsed" class="text">{{ item.name }}</div>
-            <div v-show="!inlineCollapsed && hasChildren" class="arrow">
-                <svg width="14px" height="14px" viewBox="0 0 14 14">
-                    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                        <g transform="translate(-376.000000, -25.000000)">
-                            <g transform="translate(-11.000000, -24.000000)">
-                                <g transform="translate(327.000000, 45.000000)">
-                                    <g fill="#666666" transform="translate(60.000000, 3.000000)">
-                                        <path
-                                            d="M10.8291,5.62262 C10.6201,5.44262 10.3061,5.46362 10.1251,5.67162 L7.0191,9.24462 L3.8731,5.66962 C3.6901,5.46162 3.3751,5.44262 3.1691,5.62462 C2.9621,5.80662 2.9421,6.12262 3.1241,6.32862 L6.6401,10.34162 C6.6401,10.34162 6.6441,10.34462 6.6461,10.34562 C6.7371,10.44062 6.8631,10.49962 7.0051,10.49962 C7.0081,10.49962 7.0101,10.49762 7.0131,10.49762 C7.0161,10.49762 7.0181,10.49962 7.0211,10.49962 C7.0861,10.49962 7.1491,10.48462 7.2101,10.45962 C7.2291,10.45162 7.3251,10.39862 7.3511,10.37462 C7.3601,10.36762 7.3911,10.33662 7.3971,10.32862 L10.8771,6.32662 C11.0581,6.11862 11.0361,5.80362 10.8291,5.62262">
-                                        </path>
-                                    </g>
-                                </g>
-                            </g>
-                        </g>
-                    </g>
-                </svg>
-            </div>
-        </div>
-        <HeightTransition>
-            <ul v-show="!inlineCollapsed && hasChildren && visible" class="body">
-                <li :class="[{ 'menu-item--active': citem.key === selectedKey }]" v-for="citem in item.children"
-                    :key="citem.key" @click="onMenuItemClick(citem)">{{ citem.name }}</li>
-            </ul>
-        </HeightTransition>
+  <div class="collapse-wrap">
+    <!-- menu -->
+    <div
+      :class="[
+        'menu-item',
+        {
+          'menu-item--active--flag': isMenuActive,
+          'menu-item--collapsed': inlineCollapsed && hasChildren,
+          'menu-item--collapsed--only': inlineCollapsed && !hasChildren,
+        },
+      ]"
+      @click="onMenuItemClick"
+    >
+      <!-- icon -->
+      <div class="icon">
+        <slot name="icon"></slot>
+        <!-- 子菜单气泡 -->
+        <ul class="submenu--hover">
+          <li
+            :class="[{ 'menu-item--active': citem.key === selectedKey }]"
+            v-for="citem in item.children"
+            :key="citem.key"
+            @click="onSubMenuItemClick(citem)"
+          >
+            {{ citem.name }}
+          </li>
+        </ul>
+        <!-- 菜单提示 -->
+        <div class="menu--hover">{{ item.name }}</div>
+      </div>
+      <!-- title -->
+      <div v-show="!inlineCollapsed" class="text">{{ item.name }}</div>
+      <!-- arrow -->
+      <div v-show="!inlineCollapsed && hasChildren" :class="['arrow']">
+        <IconSvg iconClass="cube-down-outlined" />
+      </div>
     </div>
+    <!-- sub-menu -->
+    <HeightTransition>
+      <ul
+        v-show="!inlineCollapsed && hasChildren && openKeys.includes(item.key)"
+        class="submenu-list"
+      >
+        <li
+          :class="[{ 'menu-item--active--flag': citem.key === selectedKey }]"
+          v-for="citem in item.children"
+          :key="citem.key"
+          @click="onSubMenuItemClick(citem)"
+        >
+          {{ citem.name }}
+        </li>
+      </ul>
+    </HeightTransition>
+  </div>
 </template>
 
 <script>
-import { CLIENT_RENEG_LIMIT } from 'tls';
-import { inject, ref, computed, toRefs } from 'vue'
-import HeightTransition from './HeightTransition.vue'
+import { inject, computed } from "vue";
+import IconSvg from "../IconSvg";
+import HeightTransition from "./HeightTransition.vue";
 export default {
-    components: {
-        HeightTransition,
+  components: {
+    IconSvg,
+    HeightTransition,
+  },
+  props: {
+    item: {
+      type: Object,
     },
-    props: {
-        item: {
-            type: Object,
-        },
-        inlineCollapsed: {
-            type: Boolean,
-        },
+    inlineCollapsed: {
+      type: Boolean,
     },
-    setup(props, { emit }) {
-        const visible = ref(false)
-        const selectedKey = inject('selectedKey')
-        const changeSelectedKey = inject('changeSelectedKey')
-        const { item } = toRefs(props)
-        const hasChildren = computed(() => {
-            return Boolean(item.value.children && item.value.children.length > 0)
-        })
-        const isMenuActive = computed(() => {
-            return selectedKey.value === item.value.key
-        })
-        function onMenuClick() {
-            if (!props.inlineCollapsed) {
-                if (hasChildren.value) {
-                    visible.value = !visible.value
-                } else {
-                    emit('menuClick')
-                    changeSelectedKey(item.value.key)
-                }
-            }
-        }
-        function onMenuItemClick(citem) {
-            emit('menuClick')
-            changeSelectedKey(citem.key)
-        }
-        return { selectedKey, isMenuActive, visible, hasChildren, onMenuClick, onMenuItemClick }
+  },
+  setup({ item, inlineCollapsed }, { emit }) {
+    const openKeys = inject("openKeys");
+    const openChange = inject("openChange");
+    const selectedKey = inject("selectedKey");
+    const changeSelectedKey = inject("changeSelectedKey");
+    const hasChildren = computed(() => {
+      return Boolean(item.children && item.children.length > 0);
+    });
+    const isMenuActive = computed(() => {
+      return selectedKey.value === item.key;
+    });
+    function onMenuItemClick() {
+      // 收起情况下屏蔽click
+      if (inlineCollapsed) return;
+      if (hasChildren.value) {
+        openChange(item.key);
+      } else {
+        emit("menuClick", item);
+        changeSelectedKey(item.key);
+      }
     }
+    function onSubMenuItemClick(citem) {
+      emit("menuClick", citem);
+      changeSelectedKey(citem.key);
+    }
+    return {
+      openKeys,
+      selectedKey,
+      isMenuActive,
+      hasChildren,
+      onMenuItemClick,
+      onSubMenuItemClick,
+    };
+  },
 };
 </script>
 
 <style lang="less" scoped>
 .menu-item--active {
-    color: #1BBC9B;
-    font-weight: 600;
-    background-color: rgba(27, 188, 155, 0.04);
+  color: #1bbc9b !important;
+  font-weight: 600;
+  background-color: rgba(27, 188, 155, 0.04);
+  .icon {
+    color: #1bbc9b !important;
+  }
+}
+.menu-item--active--flag {
+  .menu-item--active();
+  position: relative;
+  &::before {
+    content: "";
+    display: block;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 4px;
+    background-color: #1bbc9b;
+  }
 }
 
 .collapse-wrap {
-    .hover-sub-menu {
-        display: none;
-        width: 160px;
-        position: absolute;
-        top: 0;
-        left: 64px;
-        font-size: 14px;
-        font-weight: 400;
-        overflow-x: hidden;
-        overflow-y: auto;
-        background-color: #fff;
-        border-radius: 4px;
-        transition: background-color .3s cubic-bezier(.645, .045, .355, 1), padding .3s cubic-bezier(.645, .045, .355, 1);
-        box-shadow: 0 3px 6px -4px #0000001f, 0 6px 16px #00000014, 0 9px 28px 8px #0000000d;
+  .submenu--hover {
+    display: none;
+    width: 160px;
+    position: absolute;
+    top: 0;
+    left: 64px;
+    font-size: 14px;
+    font-weight: 400;
+    overflow-x: hidden;
+    overflow-y: auto;
+    background-color: #fff;
+    border-radius: 4px;
+    box-shadow: 0 3px 6px -4px #0000001f, 0 6px 16px #00000014,
+      0 9px 28px 8px #0000000d;
+    li {
+      padding-left: 44px;
+      height: 40px;
+      line-height: 40px;
+      cursor: pointer;
+      color: #333;
+      &:hover {
+        color: #1bbc9b;
+      }
+    }
+  }
 
-        li {
-            padding-left: 44px;
-            height: 40px;
-            line-height: 40px;
-            cursor: pointer;
+  .menu--hover {
+    display: none;
+    width: 160px;
+    position: absolute;
+    top: 0;
+    left: 64px;
+    font-size: 14px;
+    font-weight: 400;
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding: 8px 12px;
+    background-color: #fff;
+    border-radius: 4px;
+    box-shadow: 0 3px 6px -4px #0000001f, 0 6px 16px #00000014,
+      0 9px 28px 8px #0000000d;
+    cursor: unset;
+    color: #666;
+  }
 
-            &:hover {
-                background-color: rgba(27, 188, 155, 0.04);
-            }
-        }
+  .menu-item {
+    height: 40px;
+    display: flex;
+    align-items: center;
+    padding: 0 18px 0 16px;
+    font-size: 14px;
+    cursor: pointer;
+    position: relative;
+
+    .icon {
+      width: 16px;
+      margin-top: 3px;
+      color: #333;
     }
 
-    .hover-menu {
-        display: none;
-        width: 160px;
-        position: absolute;
-        top: 0;
-        left: 64px;
-        font-size: 14px;
-        font-weight: 400;
-        overflow-x: hidden;
-        overflow-y: auto;
-        padding: 8px 12px;
-        background-color: #fff;
-        border-radius: 4px;
-        transition: background-color .3s cubic-bezier(.645, .045, .355, 1), padding .3s cubic-bezier(.645, .045, .355, 1);
-        box-shadow: 0 3px 6px -4px #0000001f, 0 6px 16px #00000014, 0 9px 28px 8px #0000000d;
-        cursor: unset;
-        color: #666;
+    .text {
+      flex: 1;
+      margin-left: 12px;
+      line-height: 22px;
     }
 
-    .submenu-title {
-        height: 40px;
-        display: flex;
-        align-items: center;
-        padding: 0 18px 0 16px;
-        font-size: 14px;
-        position: relative;
-
-        .icon {
-            width: 16px;
-            margin-top: 3px;
-        }
-
-        .text {
-            flex: 1;
-            margin-left: 12px;
-            line-height: 22px;
-        }
-
-        .arrow {
-            color: #333;
-        }
-
-        &:hover {
-            background-color: rgba(27, 188, 155, 0.04);
-        }
+    .arrow {
+      color: #333;
     }
 
-    .submenu-title--collapsed {
-        height: 40px;
-        display: flex;
-        align-items: center;
-        padding: 0 18px 0 16px;
-        font-size: 14px;
-        cursor: pointer;
-        position: relative;
+    &:hover {
+      color: #1bbc9b;
+      .icon {
+        color: #1bbc9b;
+      }
+      .arrow {
+        color: #1bbc9b;
+      }
+    }
+    &--collapsed {
+      height: 40px;
+      display: flex;
+      align-items: center;
+      padding: 0 18px 0 16px;
+      font-size: 14px;
+      cursor: pointer;
+      position: relative;
 
-        &:hover {
-            .hover-sub-menu {
-                display: block;
-            }
+      &:hover {
+        .submenu--hover {
+          display: block;
         }
-
-        .icon {
-            width: 16px;
-            margin-top: 3px;
-        }
-
-        .text {
-            flex: 1;
-            margin-left: 12px;
-            line-height: 22px;
-        }
-
-        .arrow {
-            color: #333;
-        }
-
-        &:hover {
-            background-color: rgba(27, 188, 155, 0.04);
-        }
+      }
     }
 
-    .submenu-title--collapsed-self {
-        height: 40px;
-        display: flex;
-        align-items: center;
-        padding: 0 18px 0 16px;
-        font-size: 14px;
-        position: relative;
+    &--collapsed--only {
+      height: 40px;
+      display: flex;
+      align-items: center;
+      padding: 0 18px 0 16px;
+      font-size: 14px;
+      position: relative;
 
-        &:hover {
-            .hover-menu {
-                display: block;
-            }
+      &:hover {
+        .menu--hover {
+          display: block;
         }
+      }
     }
+  }
 
-    .body {
-        font-size: 14px;
-        font-weight: 400;
+  .submenu-list {
+    font-size: 14px;
+    font-weight: 400;
 
-        li {
-            padding-left: 44px;
-            height: 40px;
-            line-height: 40px;
-            cursor: pointer;
+    li {
+      padding-left: 44px;
+      height: 40px;
+      line-height: 40px;
+      cursor: pointer;
 
-            &:hover {
-                background-color: rgba(27, 188, 155, 0.04);
-            }
-        }
+      &:hover {
+        color: #1bbc9b;
+      }
     }
+  }
 }
 </style>

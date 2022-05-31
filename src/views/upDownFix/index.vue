@@ -1,8 +1,8 @@
 <template>
-  <BaseLayout :navs="navs" currentNavKey="1-0">
+  <BaseLayout :navs="navs" currentNavKey="1-1">
     <div class="cube-updown-layout">
       <div class="breadcrumb">一级项/二级项/选中项</div>
-      <div class="content">自适应宽度</div>
+      <div class="content">固定宽度1200px</div>
     </div>
   </BaseLayout>
 </template>
@@ -25,6 +25,8 @@ export default {
 <style lang="less" scoped>
 .cube-updown-layout {
   padding: 0 24px 0 24px;
+  width: 1200px;
+  margin: 0 auto;
 
   .breadcrumb {
     padding: 16px 0 20px 0;

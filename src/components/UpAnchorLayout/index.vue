@@ -3,11 +3,19 @@
     <div class="upanchor-layout">
       <div class="anchor-wrap">
         <ul class="anchor">
-          <li v-for="item in anchors" :key="item.href" class="anchor-item" :style="{
-            color: [hoverAnchor, activeAnchor].includes(item.href)
-              ? themeColor
-              : '#333',
-          }" @click="onAnchorClick(item)" @mouseover="onAnchorMouseOver(item)" @mouseleave="onAnchorMouseLeave(item)">
+          <li
+            v-for="item in anchors"
+            :key="item.href"
+            class="anchor-item"
+            :style="{
+              color: [hoverAnchor, activeAnchor].includes(item.href)
+                ? themeColor
+                : '#333',
+            }"
+            @click="onAnchorClick(item)"
+            @mouseover="onAnchorMouseOver(item)"
+            @mouseleave="onAnchorMouseLeave(item)"
+          >
             {{ item.title }}
           </li>
         </ul>
@@ -38,49 +46,48 @@ export default {
     anchors: {
       type: Array,
     },
+    initTop: {
+      type: Number,
+      default: 144,
+    },
     themeColor: {
       type: String,
       default: "#1BBC9B",
     },
-    initTop: {
-      type: Number,
-      default: 144
-    }
   },
   setup(props) {
     const blockParentRef = ref(null);
     const activeAnchor = ref("");
     const hoverAnchor = ref("");
-    const isScrollLock = ref(false)
+    const isScrollLock = ref(false);
     onMounted(() => {
-      init()
+      init();
     });
     watch(useScroll(), (windowScrollTop) => {
-      if (isScrollLock.value) return
-      setActiveAnchorByScroll(windowScrollTop)
+      if (isScrollLock.value) return;
+      setActiveAnchorByScroll(windowScrollTop);
     });
     function init() {
       if (props.anchors && props.anchors[0] && props.anchors[0].href) {
         activeAnchor.value = props.anchors[0].href;
       }
-      scrollTo(0)
+      scrollTo(0);
     }
     function getBlocksOffsetTop() {
       const blockOffsetTopMap = {};
       const containerNodes = blockParentRef.value.children;
-      const nodes = Array.from(containerNodes).reverse()
+      const nodes = Array.from(containerNodes).reverse();
       for (let i = 0; i < nodes.length; i++) {
-        blockOffsetTopMap[nodes[i].id] =
-          nodes[i].offsetTop - props.initTop;
+        blockOffsetTopMap[nodes[i].id] = nodes[i].offsetTop - props.initTop;
       }
-      return blockOffsetTopMap
+      return blockOffsetTopMap;
     }
     function setActiveAnchorByScroll(windowScrollTop) {
-      const blockOffsetTopMap = getBlocksOffsetTop()
+      const blockOffsetTopMap = getBlocksOffsetTop();
       for (let key in blockOffsetTopMap) {
         if (windowScrollTop >= blockOffsetTopMap[key]) {
           activeAnchor.value = key;
-          break
+          break;
         }
       }
     }
@@ -91,12 +98,12 @@ export default {
       });
     }
     function onAnchorClick(item) {
-      isScrollLock.value = true
+      isScrollLock.value = true;
       activeAnchor.value = item.href;
-      const blockOffsetTopMap = getBlocksOffsetTop()
-      scrollTo(blockOffsetTopMap[item.href])
+      const blockOffsetTopMap = getBlocksOffsetTop();
+      scrollTo(blockOffsetTopMap[item.href]);
       setTimeout(() => {
-        isScrollLock.value = false
+        isScrollLock.value = false;
       }, 800);
     }
     function onAnchorMouseOver(item) {
