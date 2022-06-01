@@ -1,49 +1,49 @@
 export const NAVS = [
   {
-    name: "左右布局",
     key: "0",
+    title: "左右布局",
     children: [
       {
-        name: "左侧菜单",
         key: "0-0",
-        url: "/left-menu",
+        title: "左侧菜单",
+        link: "/left-menu",
       },
       {
-        name: "左侧抽屉",
         key: "0-1",
-        url: "/left-drawer",
+        title: "左侧抽屉",
+        link: "/left-drawer",
       },
     ],
   },
   {
-    name: "上下布局",
     key: "1",
+    title: "上下布局",
     children: [
       {
-        name: "自适应",
         key: "1-0",
-        url: "/updown",
+        title: "自适应",
+        link: "/updown",
       },
       {
-        name: "固定宽度",
         key: "1-1",
-        url: "/updown-fix",
+        title: "固定宽度",
+        link: "/updown-fix",
       },
     ],
   },
   {
-    name: "锚点布局",
     key: "2",
+    title: "锚点布局",
     children: [
       {
-        name: "左右",
         key: "2-0",
-        url: "/side-anchor",
+        title: "左右",
+        link: "/side-anchor",
       },
       {
-        name: "上下",
         key: "2-1",
-        url: "/up-anchor",
+        title: "上下",
+        link: "/up-anchor",
       },
     ],
   },

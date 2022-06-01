@@ -4,6 +4,7 @@
     currentNavKey="0-0"
     :menus="menus"
     @menuClick="onMenuClick"
+    :userInfo="userInfo"
   >
     <div class="content">
       <div class="content__title">{{ title }}</div>
@@ -60,6 +61,49 @@ export default {
           key: "2",
         },
       ],
+      userInfo: {
+        isLogin: true,
+        uid: "o8Fiyt-tKVOsgjz-7sSW72UoUYeM",
+        lastLoginTime: 1654049784942,
+        vipInfo: {
+          isLogin: true,
+          isSvip: true,
+          isVip: true,
+          isFree: false,
+          isSvipT: false,
+          isNvip: true,
+          isNvipTemp: false,
+          isNTvip: false,
+          isDvip: true,
+          isMvip: false,
+          isTvip: true,
+          isTvipT: false,
+          isIvip: false,
+          isBvip: false,
+          isMaxvip: false,
+          isGvip: true,
+          isFvip: true,
+          isFvipT: false,
+          isCvip: true,
+          isCvipT: false,
+          isEvip: true,
+          isInn: false,
+          isPvip: true,
+          isPcvip: true,
+          isHvip: true,
+          isCTvip: true,
+          isSitevip: false,
+          isBnwSubVip: false,
+          is_member_en: false,
+          is_member_mail: false,
+          sitevipTemp: false,
+          ctvipTemp: false,
+        },
+        headImg:
+          "https://thirdwx.qlogo.cn/mmopen/vi_32/Q0j4TwGTfTK9CMXiaOA84cboVBm3yfn9XP4U9B48e1TibQzCPZoGa962EEtJrAia0Osic4TgAWpfbl51icdsCaJcf1A/132",
+        isShowDataCentre: false,
+        nickname: "没有声音",
+      },
     });
 
     function onMenuClick(item2) {

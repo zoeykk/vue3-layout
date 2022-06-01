@@ -1,5 +1,5 @@
 <template>
-  <BaseLayout :navs="navs" :currentNavKey="currentNavKey">
+  <BaseLayout :navs="navs" :currentNavKey="currentNavKey" :userInfo="userInfo">
     <div class="cube-menu-layout">
       <div
         class="cube-menu-layout__menu"
@@ -62,6 +62,9 @@ export default {
     },
     menus: {
       type: Array,
+    },
+    userInfo: {
+      type: Object,
     },
   },
   components: {
