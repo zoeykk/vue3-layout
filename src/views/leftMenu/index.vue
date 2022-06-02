@@ -34,7 +34,7 @@ export default {
           children: [
             {
               key: "0-0",
-              name: "子菜单0-0",
+              name: "子菜单子菜单0-0",
             },
             {
               key: "0-1",

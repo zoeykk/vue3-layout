@@ -59,10 +59,10 @@
         <ul class="cube-nav__menu">
           <li v-for="item in navs" :key="item.key">
             <span
-              :class="{
-                'menu-item': true,
-                'menu-item--active': currentNavKey == item.key,
-              }"
+              :class="[
+                'menu-item',
+                { 'menu-item--active': currentNavKey == item.key },
+              ]"
             >
               <!-- 导航名称-有下拉菜单 -->
               <span v-if="item.children && item.children.length">
@@ -185,6 +185,7 @@ export default {
 </script>
 
 <style lang="less" scoped>
+@primay-color: #1bbc9b;
 .cube-base-layout {
   padding-top: 64px;
 
@@ -206,6 +207,7 @@ export default {
         width: 16px;
         height: 16px;
         margin: 0 32px 0 20px;
+        background-color: #fff; // 占位
       }
 
       &__menu {
@@ -270,13 +272,13 @@ export default {
 
               &:hover {
                 a {
-                  color: #1bbc9b;
+                  color: @primay-color;
                 }
               }
             }
 
             .sub-menu--active {
-              color: #1bbc9b;
+              color: @primay-color;
             }
           }
 

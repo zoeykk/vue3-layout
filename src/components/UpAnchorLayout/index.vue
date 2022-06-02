@@ -8,8 +8,8 @@
             :key="item.href"
             class="anchor-item"
             :style="{
-              color: [hoverAnchor, activeAnchor].includes(item.href)
-                ? themeColor
+              color: [data.hoverAnchor, data.activeAnchor].includes(item.href)
+                ? '#fff'
                 : '#333',
             }"
             @click="onAnchorClick(item)"
@@ -28,7 +28,7 @@
 </template>
 
 <script>
-import { ref, onMounted, watch } from "vue";
+import { ref, onMounted, watch, reactive } from "vue";
 import BaseLayout from "@/components/BaseLayout";
 import useScroll from "@/hooks/useScroll.js";
 
@@ -57,19 +57,21 @@ export default {
   },
   setup(props) {
     const blockParentRef = ref(null);
-    const activeAnchor = ref("");
-    const hoverAnchor = ref("");
-    const isScrollLock = ref(false);
+    const data = reactive({
+      activeAnchor: "",
+      hoverAnchor: "",
+      isScrollLock: false,
+    });
     onMounted(() => {
       init();
     });
     watch(useScroll(), (windowScrollTop) => {
-      if (isScrollLock.value) return;
+      if (data.isScrollLock) return;
       setActiveAnchorByScroll(windowScrollTop);
     });
     function init() {
       if (props.anchors && props.anchors[0] && props.anchors[0].href) {
-        activeAnchor.value = props.anchors[0].href;
+        data.activeAnchor = props.anchors[0].href;
       }
       scrollTo(0);
     }
@@ -86,7 +88,7 @@ export default {
       const blockOffsetTopMap = getBlocksOffsetTop();
       for (let key in blockOffsetTopMap) {
         if (windowScrollTop >= blockOffsetTopMap[key]) {
-          activeAnchor.value = key;
+          data.activeAnchor = key;
           break;
         }
       }
@@ -98,25 +100,23 @@ export default {
       });
     }
     function onAnchorClick(item) {
-      isScrollLock.value = true;
-      activeAnchor.value = item.href;
+      data.isScrollLock = true;
+      data.activeAnchor = item.href;
       const blockOffsetTopMap = getBlocksOffsetTop();
       scrollTo(blockOffsetTopMap[item.href]);
       setTimeout(() => {
-        isScrollLock.value = false;
+        data.isScrollLock = false;
       }, 800);
     }
     function onAnchorMouseOver(item) {
-      hoverAnchor.value = item.href;
+      data.hoverAnchor = item.href;
     }
     function onAnchorMouseLeave() {
-      hoverAnchor.value = "";
+      data.hoverAnchor = "";
     }
     return {
-      isScrollLock,
       blockParentRef,
-      activeAnchor,
-      hoverAnchor,
+      data,
       onAnchorClick,
       onAnchorMouseOver,
       onAnchorMouseLeave,
@@ -126,6 +126,7 @@ export default {
 </script>
 
 <style lang="less" scoped>
+@primay-color: #1bbc9b;
 .upanchor-layout {
   padding: 24px;
   padding-top: 80px;
@@ -137,9 +138,8 @@ export default {
     right: 24px;
     padding-top: 24px;
     background-color: #fafafa;
-
     .anchor {
-      background-color: antiquewhite;
+      background: @primay-color;
       border-radius: 4px;
       padding: 16px;
       position: relative;

@@ -4,8 +4,7 @@ import leftDrawer from "../views/leftDrawer";
 const routes = [
   {
     path: "/",
-    name: "Home",
-    component: leftDrawer,
+    redirect: "/left-menu",
   },
   {
     path: "/left-drawer",
